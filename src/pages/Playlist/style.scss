@@ -3,7 +3,7 @@
 
   header {
     width: 100vw;
-    max-height: 15vh;
+    height: 15vh;
     display: flex;
     align-items: center;
 
@@ -88,6 +88,31 @@
           &-description {
             color: rgb(172, 172, 172);
           }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  #page-playlist {
+    header {
+      flex-wrap: wrap;
+      justify-content: center;
+      height: auto;
+
+      img {
+        height: 100px;
+      }
+
+      .menu {
+        height: auto;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 15px;
+
+        &__item {
+          min-width: 80%;
         }
       }
     }

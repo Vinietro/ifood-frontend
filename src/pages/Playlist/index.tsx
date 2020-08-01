@@ -11,6 +11,10 @@ import logo from '../../assets/logo-white.png'
 import { PlaylistInterface } from '../../interface/Playlist';
 import environemnt from '../../environment';
 import { Filter, QueryFilter } from '../../interface/Filters';
+import IntegerFilterInput from './components/IntegerFilterInput';
+import SelectFilterInput from './components/SelectFilterInput';
+import DateFilterInput from './components/DateFilterInput';
+import PlaylistItem from './components/PlaylistItem';
 
 const Playlist = () => {
     const [token, setToken] = useState<String>('');
@@ -62,6 +66,25 @@ const Playlist = () => {
         });
     }, [])
 
+    useEffect(() => {
+        setTimeout(() => {
+            axios.get<any>(`${environemnt.urlApiSpotify}?${
+                currentFilters.length > 0 ?
+                    currentFilters
+                        .map((filter) => `${filter.field}=${filter.value}`)
+                        .reduce((accumulator, current) => `${accumulator}&${current}`)
+                    : ''
+                }`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(response => {
+                setPlaylist(response.data.playlists.items);
+            }).catch(error => {
+                setPlaylist([]);
+                console.log(`Erro: ${error}`)
+            });
+        }, 30000)
+    });
+
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         console.log(name, value);
@@ -78,7 +101,7 @@ const Playlist = () => {
 
     const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
         const { name, value } = event.target;
-        console.log(event.target, name, value);
+        console.log(filters, event.target, name, value);
         const filtersAux = currentFilters.filter(filter => filter.field !== name);
         if (value && validateField(name, value)) {
             filtersAux.push({
@@ -90,12 +113,14 @@ const Playlist = () => {
     }
 
     const validateField = (field: string, value: string) => {
-        const filter = filters.find(filter => filter.id = field);
+        const filter = filters.find(filter => filter.id === field);
         if (filter && filter.validation) {
             if (filter.validation.primitiveType && filter.validation.min && filter.validation.max) {
                 return filter.validation.min <= Number(value) && filter.validation.max >= Number(value);
             } else if (filter.validation.entityType === 'DATE_TIME') {
                 return moment(value).isValid();
+            } else {
+                return true;
             }
         } else if (filter) {
             return true;
@@ -123,29 +148,16 @@ const Playlist = () => {
                     {filters.map(filter => {
                         if (filter.values) {
                             return (
-                                <div key={filter.id} className="menu__item">
-                                    <label htmlFor={filter.id}>{filter.name}</label>
-                                    <select key={filter.id} name={filter.id} id={filter.id} onChange={handleSelectChange}>
-                                        {filter.values.map(option => (
-                                            <option key={option.value} value={option.value}>{option.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <SelectFilterInput filter={filter} onChanged={handleSelectChange} />
                             )
                         } else {
                             if (filter.validation && filter.validation.primitiveType === 'STRING') {
                                 return (
-                                    <div key={filter.id} className="menu__item">
-                                        <label htmlFor={filter.id}>{filter.name}</label>
-                                        <input key={filter.id} type="datetime-local" name={filter.id} onChange={handleInputChange} />
-                                    </div>
+                                    <DateFilterInput filter={filter} onChanged={handleInputChange} />
                                 )
                             } else if (filter.validation && filter.validation.primitiveType === 'INTEGER') {
                                 return (
-                                    <div key={filter.id} className="menu__item">
-                                        <label htmlFor={filter.id}>{filter.name}</label>
-                                        <input key={filter.id} type="number" name={filter.id} onChange={handleInputChange} />
-                                    </div>
+                                    <IntegerFilterInput filter={filter} onChanged={handleInputChange} />
                                 )
                             }
                         }
@@ -157,23 +169,7 @@ const Playlist = () => {
                 <main>
                     <div className="playlist">
                         {playlist?.map(item => (
-                            <div key={item.name} className="playlist__item">
-                                <a href={item.external_urls.spotify} rel="noopener noreferrer" target="_blank">
-                                    <img
-                                        src={item.images[0].url}
-                                        alt=""
-                                    />
-                                </a>
-                                <span className="playlist__item-title">
-                                    {item.name}
-                                </span>
-                                <span className="playlist__item-owner">
-                                    {item.owner.display_name}
-                                </span>
-                                <span className="playlist__item-description">
-                                    {item.description}
-                                </span>
-                            </div>
+                            <PlaylistItem item={item} />
                         ))}
                     </div>
                 </main>
