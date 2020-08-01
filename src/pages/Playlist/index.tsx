@@ -135,7 +135,7 @@ const Playlist = () => {
             currentFilter.validation &&
             currentFilter.validation.entityType &&
             currentFilter.validation.entityType === 'DATE_TIME') {
-            return `${moment(value).format('yyyy-MM-ddTHH:mm:ss')}:00`;
+            return moment(value).format('yyyy-MM-DDTHH:mm:ss');
         }
         return value;
     }
