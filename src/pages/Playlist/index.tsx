@@ -1,6 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import axios from 'axios';
-// import environment from '../../environment';
 import queryString from 'query-string';
 import moment from 'moment';
 
@@ -87,7 +86,6 @@ const Playlist = () => {
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
-        console.log(name, value);
         const filtersAux = currentFilters.filter(filter => filter.field !== name);
         if (value && validateField(name, value)) {
             const convertedValue = convertDate(name, value);
@@ -101,7 +99,6 @@ const Playlist = () => {
 
     const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
         const { name, value } = event.target;
-        console.log(filters, event.target, name, value);
         const filtersAux = currentFilters.filter(filter => filter.field !== name);
         if (value && validateField(name, value)) {
             filtersAux.push({

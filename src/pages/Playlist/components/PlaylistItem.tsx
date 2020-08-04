@@ -1,5 +1,4 @@
 import React from 'react'
-import { Filter } from '../../../interface/Filters'
 import { PlaylistInterface } from '../../../interface/Playlist';
 
 type props = {
